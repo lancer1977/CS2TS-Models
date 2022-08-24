@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterfacesToTS", "InterfacesToTS.csproj", "{D30B90BB-6134-43E1-A9E1-2056CD90213A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CS2TS", "CS2TS.csproj", "{D30B90BB-6134-43E1-A9E1-2056CD90213A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
