@@ -1,7 +1,6 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
-namespace InterfacesToTS;
+namespace CS2TS;
 
 public static class TypeScriptInterfacesExtension
 {
@@ -18,10 +17,10 @@ public static class TypeScriptInterfacesExtension
 
         var sourcePath = path + "\\src";
         Directory.CreateDirectory(path);
-        File.Copy("package.json",path + "\\package.json");
-        File.Copy("tsconfig.json", path + "\\tsconfig.json");
+        //File.Copy("package.json",path + "\\package.json");
+        //File.Copy("tsconfig.json", path + "\\tsconfig.json");
         var typeList = new List<Type>();
-        var assemblies = InterfacesToTS.Constants.Assemblies;
+        var assemblies = Constants.Assemblies;
         foreach (var item in assemblies)
         {
             typeList.AddRange(item.GetTypes().Where(x=>x.IsInterface));

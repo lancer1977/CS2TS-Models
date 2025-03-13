@@ -1,11 +1,24 @@
 {
-  "name": "example-name",
+  "name": "typescript",
   "version": "1.0.0",
+  
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsup",
+    "lint": "eslint 'src/**/*.ts'",
+    "build2" :"npx tsup src/index.ts --dts --format esm,cjs --out-dir dist"  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "description": "",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "files": [
-    "**/*"
-  ],
-  "author": "Chris Richmond"
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.26.0",
+    "@typescript-eslint/parser": "^8.26.0",
+    "eslint": "^9.22.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2"
+  }
 }
