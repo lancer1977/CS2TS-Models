@@ -1,30 +1,33 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace CS2TS;
 
 public static class TypeScriptInterfacesExtension
 {
-    private static List<string> FileLocations = new List<string>();
+    private static List<string> FileLocations { get; } = [];
 
-    private static List<Type> EnumList = new List<Type>();
+    private static List<Type> EnumList { get; } = [];
 
     public static void GenerateTypeScriptInterfaces(string path)
     {
+        FileLocations.Clear();
+        EnumList.Clear();
+
         if (Directory.Exists(path))
         {
             Directory.Delete(path, recursive: true);
         }
 
-        var sourcePath = path + "\\src";
+        var sourcePath = Path.Combine(path, "src");
         Directory.CreateDirectory(path);
-        //File.Copy("package.json",path + "\\package.json");
-        //File.Copy("tsconfig.json", path + "\\tsconfig.json");
+
         var typeList = new List<Type>();
         var assemblies = Constants.Assemblies;
         foreach (var item in assemblies)
         {
-            typeList.AddRange(item.GetTypes().Where(x=>x.IsInterface));
+            typeList.AddRange(item.GetTypes().Where(x => x.IsInterface));
         }
+
         typeList.Add(typeof(TimeSpan));
 
         GenerateTypes(sourcePath, typeList);
@@ -34,10 +37,10 @@ public static class TypeScriptInterfacesExtension
 
     private static void CreateRollup(string path)
     {
-        var lines = new List<string>() { "import typescript from 'rollup-plugin-typescript2'", "export default ["};
+        var lines = new List<string> { "import typescript from 'rollup-plugin-typescript2'", "export default [" };
         foreach (var item in FileLocations)
         {
-            var endPath = item.Replace("\\", "/");
+            var endPath = item.Replace(Path.DirectorySeparatorChar, '/').Replace(Path.AltDirectorySeparatorChar, '/');
             lines.Add("{");
             lines.Add("input: './" + endPath + "',");
             lines.Add("output:");
@@ -57,6 +60,7 @@ public static class TypeScriptInterfacesExtension
             lines.Add("plugins: [typescript()],");
             lines.Add("},");
         }
+
         lines.Add("]");
         var fullpath = Path.Combine(path, "index.js");
         File.WriteAllLines(fullpath, lines);
@@ -64,22 +68,20 @@ public static class TypeScriptInterfacesExtension
 
     private static void CreateIndex(string path)
     {
-        var lines = new List<string>(); 
+        var lines = new List<string>();
         foreach (var item in FileLocations)
         {
-            var local = item.Replace("\\", "/");
-            var type = local.Substring(item.LastIndexOf("/")+1).Replace(".ts", "");
+            var local = item.Replace(Path.DirectorySeparatorChar, '/').Replace(Path.AltDirectorySeparatorChar, '/');
+            var type = local[(local.LastIndexOf('/') + 1)..].Replace(".ts", "");
             lines.Add("export { " + type + " } from '" + local + "'");
-         
         }
+
         var fullpath = Path.Combine(path, "index.js");
         File.WriteAllLines(fullpath, lines);
     }
 
-
     private static void GenerateEnums(string path, List<Type> enumList)
     {
-        //path += "/Enums";
         foreach (var type in enumList)
         {
             (string, string[]) tsType = ConvertCs2Ts(type);
@@ -87,8 +89,9 @@ public static class TypeScriptInterfacesExtension
             var directory = Path.GetDirectoryName(fullPath);
             if (!Directory.Exists(directory))
             {
-                Directory.CreateDirectory(directory);
+                Directory.CreateDirectory(directory!);
             }
+
             FileLocations.Add(fullPath);
             File.WriteAllLines(fullPath, tsType.Item2);
         }
@@ -103,23 +106,26 @@ public static class TypeScriptInterfacesExtension
             var directory = Path.GetDirectoryName(fullPath);
             if (!Directory.Exists(directory))
             {
-                Directory.CreateDirectory(directory);
+                Directory.CreateDirectory(directory!);
             }
+
             FileLocations.Add(fullPath);
             File.WriteAllLines(fullPath, tsType.Item2);
         }
     }
 
-    private static Type ReplaceByGenericArgument(Type type)
+    private static Type? ReplaceByGenericArgument(Type type)
     {
         if (type.IsArray)
         {
             return type.GetElementType();
         }
+
         if (!type.IsConstructedGenericType)
         {
             return type;
         }
+
         var genericArgument = type.GenericTypeArguments.First();
         var isTask = type.GetGenericTypeDefinition() == typeof(Task<>);
         var isEnumerable = typeof(IEnumerable<>).MakeGenericType(genericArgument).IsAssignableFrom(type);
@@ -127,10 +133,12 @@ public static class TypeScriptInterfacesExtension
         {
             throw new InvalidOperationException();
         }
+
         if (genericArgument.IsConstructedGenericType)
         {
             return ReplaceByGenericArgument(genericArgument);
         }
+
         return genericArgument;
     }
 
@@ -140,37 +148,28 @@ public static class TypeScriptInterfacesExtension
         defaultInterpolatedStringHandler.AppendFormatted(type.Namespace?.Replace(".", "/"));
         defaultInterpolatedStringHandler.AppendLiteral("/");
         defaultInterpolatedStringHandler.AppendFormatted(type.Name);
-        //defaultInterpolatedStringHandler.AppendFormatted(type.IsEnum ? "" : ".Interface");
         defaultInterpolatedStringHandler.AppendLiteral(".ts");
         var filename = defaultInterpolatedStringHandler.ToStringAndClear();
         var types = GetAllNestedTypes(type);
         var lines = new List<string>();
-        var array = types;
-        foreach (var t in array)
+        foreach (var t in types)
         {
-            lines.Add("");
+            lines.Add(string.Empty);
             if (t.IsClass || t.IsInterface)
             {
                 ConvertClassOrInterface(lines, t);
                 continue;
             }
+
             if (t.IsEnum)
             {
                 ConvertEnum(lines, t);
                 continue;
             }
 
- //structs??
- try
- {
-     ConvertClassOrInterface(lines, t);
- }
- catch (Exception ex)
- {
-     throw;
- }
-           
+            ConvertClassOrInterface(lines, t);
         }
+
         return (filename, lines.ToArray());
     }
 
@@ -187,9 +186,9 @@ public static class TypeScriptInterfacesExtension
             var nullableType = GetNullableType(propType);
             var typeToUse = nullableType ?? arrayType ?? propType;
             var convertedType = ConvertType(typeToUse);
-            var suffix = "";
-            suffix = ((arrayType != null) ? "[]" : suffix);
-            suffix = ((nullableType != null) ? "|null" : suffix);
+            var suffix = string.Empty;
+            suffix = arrayType != null ? "[]" : suffix;
+            suffix = nullableType != null ? "|null" : suffix;
             var defaultInterpolatedStringHandler = new DefaultInterpolatedStringHandler(5, 3);
             defaultInterpolatedStringHandler.AppendLiteral("  ");
             defaultInterpolatedStringHandler.AppendFormatted(CamelCaseName(property.Name));
@@ -203,17 +202,18 @@ public static class TypeScriptInterfacesExtension
                 headers.TryAdd(convertedType.Name, convertedType);
             }
         }
+
         if (headers.Any())
         {
             foreach (var item in headers.Values)
             {
-                var head = "import {" + item.Name + "} from \"src/" 
-                           + item.ExternalPath.Replace('.', '/') 
-                           //+ (item.IsEnum ? "" : ".Interface")
+                var head = "import {" + item.Name + "} from \"src/"
+                           + item.ExternalPath.Replace('.', '/')
                            + "\"";
                 lines.Insert(0, head);
             }
         }
+
         lines.Add("}");
     }
 
@@ -221,12 +221,14 @@ public static class TypeScriptInterfacesExtension
     {
         if (Constants.ConvertedTypes.ContainsKey(type))
         {
-            return new TsProp(Constants.ConvertedTypes[type], isExternal: false, "", isEnum: false);
+            return new TsProp(Constants.ConvertedTypes[type], isExternal: false, string.Empty, isEnum: false);
         }
+
         if (type.IsEnum)
         {
             EnumList.Add(type);
         }
+
         if (type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>))
         {
             var keyType = type.GenericTypeArguments[0];
@@ -237,9 +239,10 @@ public static class TypeScriptInterfacesExtension
             defaultInterpolatedStringHandler.AppendLiteral("]: ");
             defaultInterpolatedStringHandler.AppendFormatted(ConvertType(valueType));
             defaultInterpolatedStringHandler.AppendLiteral(" }");
-            return new TsProp(defaultInterpolatedStringHandler.ToStringAndClear(), isExternal: true, type.FullName, isEnum: true);
+            return new TsProp(defaultInterpolatedStringHandler.ToStringAndClear(), isExternal: true, type.FullName ?? type.Name, isEnum: true);
         }
-        return new TsProp(type.Name, isExternal: true, type.FullName, !type.IsEnum);
+
+        return new TsProp(type.Name, isExternal: true, type.FullName ?? type.Name, !type.IsEnum);
     }
 
     private static void ConvertEnum(IList<string> lines, Type type)
@@ -257,20 +260,22 @@ public static class TypeScriptInterfacesExtension
             defaultInterpolatedStringHandler.AppendLiteral(",");
             lines.Add(defaultInterpolatedStringHandler.ToStringAndClear());
         }
+
         lines.Add("}");
     }
 
     private static Type[] GetAllNestedTypes(Type type)
     {
-        return new Type[1] { type }.Concat(type.GetNestedTypes().SelectMany(GetAllNestedTypes)).ToArray();
+        return [type, .. type.GetNestedTypes().SelectMany(GetAllNestedTypes)];
     }
 
-    private static Type GetArrayOrEnumerableType(Type type)
+    private static Type? GetArrayOrEnumerableType(Type type)
     {
         if (type.IsArray)
         {
             return type.GetElementType();
         }
+
         if (type.IsConstructedGenericType)
         {
             var typeArgument = type.GenericTypeArguments.First();
@@ -279,10 +284,11 @@ public static class TypeScriptInterfacesExtension
                 return typeArgument;
             }
         }
+
         return null;
     }
 
-    private static Type GetNullableType(Type type)
+    private static Type? GetNullableType(Type type)
     {
         if (type.IsConstructedGenericType)
         {
@@ -292,11 +298,12 @@ public static class TypeScriptInterfacesExtension
                 return typeArgument;
             }
         }
+
         return null;
     }
 
     private static string CamelCaseName(string pascalCaseName)
     {
-        return pascalCaseName[0].ToString().ToLower() + pascalCaseName.Substring(1);
+        return pascalCaseName[0].ToString().ToLower() + pascalCaseName[1..];
     }
 }

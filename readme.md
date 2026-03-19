@@ -2,20 +2,48 @@
 
 ## What is it?
 
-A tool for converting CS models to TS types
+A tool for converting C# models to TypeScript types.
+
+## Runtime
+
+- Targets `.NET 10`
+- Verified on `king95-linux`
+- No separate .NET 9 runtime install is required
+
+## Usage
+
+```bash
+dotnet restore
+dotnet build CS2TS.sln
+dotnet run --project CS2TS.csproj -- --help
+```
+
+Generate output to a custom folder:
+
+```bash
+dotnet run --project CS2TS.csproj -- --assembly ./path/to/MyModels.dll --out ./typescript/out
+```
+
+Open the generated output folder after generation:
+
+```bash
+dotnet run --project CS2TS.csproj -- --assembly ./path/to/MyModels.dll --out ./typescript/out --open
+```
+
+`--open` is off by default. When enabled it uses the current OS opener:
+
+- Windows: `explorer.exe`
+- macOS: `open`
+- Linux: `xdg-open`
 
 ## How It Works
 
-I borrowed a variety of code from another repo and I wish I could recall where I foundi t in my google search so going to just leave this here in case it benefits others in the future.
+Configure one or more assemblies that contain your interfaces and DTOs, then run the generator. After generation, run `tsc`, package the result, and deploy the library.
 
-Constants requires a list of assemblies that contain your interfaces and dtos. Run the project and in the export directory run
-tsc
-package then deploy the library.
+## Why
 
-# Why
-Automation of course
- 
- 
-# Contact Us
+Automation.
+
+## Contact Us
+
 lancer1977@gmail.com
-
