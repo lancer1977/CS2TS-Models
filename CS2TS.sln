@@ -4,6 +4,10 @@ VisualStudioVersion = 17.13.35723.152
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CS2TS", "CS2TS.csproj", "{B6AA9170-8372-E431-0CBC-3BC56177E79E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CS2TS.Tests.Fixtures", "tests\CS2TS.Tests.Fixtures\CS2TS.Tests.Fixtures.csproj", "{A1111111-2222-3333-4444-555555555555}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CS2TS.Tests", "tests\CS2TS.Tests\CS2TS.Tests.csproj", "{B2222222-3333-4444-5555-666666666666}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,6 +18,14 @@ Global
 		{B6AA9170-8372-E431-0CBC-3BC56177E79E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6AA9170-8372-E431-0CBC-3BC56177E79E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6AA9170-8372-E431-0CBC-3BC56177E79E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1111111-2222-3333-4444-555555555555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1111111-2222-3333-4444-555555555555}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1111111-2222-3333-4444-555555555555}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1111111-2222-3333-4444-555555555555}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2222222-3333-4444-5555-666666666666}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2222222-3333-4444-5555-666666666666}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2222222-3333-4444-5555-666666666666}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2222222-3333-4444-5555-666666666666}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -21,4 +33,4 @@ Global
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {87D49E3E-2960-4DB0-B882-E1DF74C93A0E}
 	EndGlobalSection
-EndGlobal
+EndProject

@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace CS2TS;
@@ -8,7 +9,18 @@ public static class TypeScriptInterfacesExtension
 
     private static List<Type> EnumList { get; } = [];
 
+    /// <summary>
+    /// Generate TypeScript interfaces from configured assemblies.
+    /// </summary>
     public static void GenerateTypeScriptInterfaces(string path)
+    {
+        GenerateTypeScriptInterfaces(path, Constants.Assemblies);
+    }
+
+    /// <summary>
+    /// Generate TypeScript interfaces from specified assemblies (useful for testing).
+    /// </summary>
+    public static void GenerateTypeScriptInterfaces(string path, Assembly[] assemblies)
     {
         FileLocations.Clear();
         EnumList.Clear();
@@ -22,7 +34,6 @@ public static class TypeScriptInterfacesExtension
         Directory.CreateDirectory(path);
 
         var typeList = new List<Type>();
-        var assemblies = Constants.Assemblies;
         foreach (var item in assemblies)
         {
             typeList.AddRange(item.GetTypes().Where(x => x.IsInterface));
